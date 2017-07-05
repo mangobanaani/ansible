@@ -1,13 +1,6 @@
-ansible-playbook core.yml --ask-become -v
-
-[testing]
-nostromo
-
-[testing:vars]
-ansible_ssh_user=pekka
-ansible_ssh_pass=pekka
-
-
+# ansible playbook for updating Linux servers
+# mangobanaani 2017
+# MIT License
 
 - hosts: testing
   become: yes
