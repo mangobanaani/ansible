@@ -5,11 +5,6 @@
 - hosts: testing
   become: yes
   gather_facts: True
-  vars:
-    motd_warning: "Dont be irreplaceable; if you cant be replaced, you cannot be promoted"
-  tasks:
-  - name: setup a MOTD
-    copy: dest=/etc/motd content={{ motd_warning }}
 
   - name: yum update
     become: yes
