@@ -25,7 +25,7 @@
 
   - name : Unexpected OS family
     debug: msg="OS Family {{ ansible_os_family }} is not supported"
-    when: not ansible_os_family != "RedHat" or ansible_os_family != "Debian"
+    when: not ansible_os_family != "RedHat" or ansible_os_family != "Debian" or ansible_os_family != 'Darwin'
 
   - name: apt check autoremove
     command: apt-get --dry-run autoremove
