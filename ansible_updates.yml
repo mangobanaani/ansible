@@ -9,7 +9,7 @@
   - name: yum update
     become: yes
     yum: name=* state=latest
-    when: ansible_os_family=="RedHar"
+    when: ansible_os_family=="RedHat"
 
   - name : apt update & upgrade
     become: yes
