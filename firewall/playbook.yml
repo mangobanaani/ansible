@@ -1,0 +1,18 @@
+- name: common firewall rules
+  hosts: all
+  roles: 
+   - { role: 'common', tags: 'iptables' }
+  become: yes
+  gather_facts: yes
+  remote_user: root
+  pre_tasks:
+      - name: install aptitude
+        raw: sudo apt-get -y install aptitude
+  tasks:
+    - name: apt update
+      become: yes
+      apt:
+        upgrade: yes
+        update-cache: yes
+      when: ansible_os_family=="Debian"
+
