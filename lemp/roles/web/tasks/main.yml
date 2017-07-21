@@ -1,0 +1,134 @@
+---
+- name: inst nginx
+  apt: 
+    name: nginx 
+    state: latest
+    update_cache: yes
+
+- name: write our nginx.conf
+  template: 
+    src: nginx.conf.j2 
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: copy default site conf
+  template: 
+    src: default.j2 
+    dest: /etc/nginx/sites-available/default
+    owner: root
+    group: root
+    mode: 0644
+
+- name: copy ssl_params.conf
+  template: 
+    src: ssl_params.conf.j2 
+    dest: /etc/nginx/snippets/ssl_params.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: copy ssl-localhost.conf
+  template: 
+    src: ssl_localhost.conf.j2 
+    dest: /etc/nginx/snippets/ssl_localhost.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: install python-pip
+  apt:
+    name: python-pip
+    state: latest
+
+- name: install pyOpenSSL package via pip
+  pip:
+    name: pyOpenSSL
+
+- name: create dir for ssl 
+  file: path=/etc/nginx/ssl state=directory
+
+- name: Generate self signed SSL certs
+  command: >
+    openssl req
+      -new
+      -newkey rsa:4096
+      -days 365
+      -nodes
+      -x509
+      -subj "/C=FI/CN=localhost"
+      -keyout /etc/nginx/ssl/localhost_ssl.key
+      -out /etc/nginx/ssl/localhost_ssl.pem
+  args:
+    creates: '/etc/nginx/ssl/localhost.pem'
+
+- name: install php7.0
+  apt:
+    name: php7.0
+    state: latest
+
+- name: install php7.0-fpm
+  apt:
+    name: php7.0-fpm
+    state: latest
+
+- name: install php7.0-mysql
+  apt:
+    name: php7.0-mysql
+    state: latest
+
+- name: install mariadb-server
+  apt: 
+    name: mariadb-server 
+    state: latest
+
+- template: 
+    src: '{{playbook_dir}}/templates/mysql_secure.sh.j2'
+    dest: /root/secure_mysql.sh
+    owner: root
+    group: root
+    mode: 0700
+
+- name: exec secure mysql installation
+  command: /root/secure_mysql.sh
+
+- name: change php.ini settings
+  ini_file:
+    section: cgi
+    path: /etc/php/7.0/fpm/php.ini
+    option: cgi.fix_pathinfo
+    value: 0
+
+- name: 2048 -bit dhparam.pem 
+  command: openssl dhparam -out /etc/nginx/ssl/dhparam.pem 2048
+  args:
+    creates: '/etc/nginx/ssl/localhost_dhparam.pem'
+
+- name: start and enable nginx
+  service: 
+      name: nginx
+      enabled: yes
+      state: restarted
+
+- name: start and enable mariadb-server
+  service: 
+      name: mysql.service
+      enabled: yes
+      state: restarted
+
+- name: start and enable php7-fpm
+  service: 
+      name: php7.0-fpm
+      enabled: yes
+      state: restarted
+
+- name: deploy test page
+  template: 
+    src: '{{playbook_dir}}/templates/index.html.j2'
+    dest: /usr/share/nginx/html/index.php
+    owner: www-data
+    group: www-data
+    mode: 0755
+
+

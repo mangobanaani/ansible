@@ -1,0 +1,92 @@
+user www-data;
+
+worker_processes 'auto';
+
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    server_tokens off;
+    include mime.types;
+    default_type application/octet-stream;
+    sendfile on;
+    keepalive_timeout 65;
+
+    gzip on;
+    gzip_comp_level 6;
+    gzip_min_length 1100;
+    gzip_buffers 16 8k;
+    gzip_proxied any;
+    gzip_types
+        text/plain
+        text/css
+        text/js
+        text/xml
+        text/javascript
+        application/javascript
+        application/x-javascript
+        application/json
+        application/xml
+        application/rss+xml
+        image/x-icon
+        image/svg+xml;
+
+    server_names_hash_bucket_size 64;
+
+    server {
+        listen      80;
+        server_name localhost;
+        charset utf-8;
+
+    if ($ssl_protocol = "") {
+        rewrite ^ https://$server_name$request_uri? permanent;
+    }
+    
+        add_header X-Frame-Options "SAMEORIGIN";
+        add_header X-Content-Type-Options "nosniff";
+        add_header X-XSS-Protection "1; mode=block";
+
+        #access_log  logs/host.access.log;
+        error_page  404 /404.html;
+        error_page  500 502 503 504 /50x.html;
+
+        server_tokens off;
+
+        location / {
+            root   html;
+            index  index.html index.htm;
+        }
+        location = /50x.html {
+            root   html;
+        }
+    }
+
+
+  server{
+        listen 443 ssl http2;
+        server_name nginx;
+        charset utf-8;
+        include snippets/ssl_localhost.conf;
+        include snippets/ssl_params.conf;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        server_tokens off;
+    add_header X-Frame-Options "SAMEORIGIN";
+        add_header X-Content-Type-Options "nosniff";
+        add_header X-XSS-Protection "1; mode=block";
+ 
+        root /usr/share/nginx/html;
+        index index.php index.htm index.html;
+
+        location ~ \.php$ {
+            try_files $uri =404;
+            fastcgi_split_path_info ^(.+\.php)(/.+)$;
+            fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
+            fastcgi_index index.php;
+            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+            include fastcgi_params;
+        }
+
+ }
+}
