@@ -82,19 +82,19 @@ name : elk
 #-------------------------- Elasticsearch output ------------------------------
 output.elasticsearch:
   # Array of hosts to connect to.
-  #hosts: ["localhost:9200"]
+  hosts: ["localhost:{{ elasticsearch_port }}"]
 
   # Optional protocol and basic auth credentials.
   #protocol: "http"
-  #username: "elastic"
-  #password: "changeme"
+  username: "elastic"
+  password: {{ elasticsearch_password }}
 
 #----------------------------- Logstash output --------------------------------
 output.logstash:
   # The Logstash hosts
   hosts: ["{{ logstash_host }}:{{ logstash_port_listening }}"]
   username: "logstash"
-  password: "changeme"
+  password: {{ logstash_password }}
 
   tls:
     certificate_authorities: ["/etc/ssl/logstash-forwarder.crt"]
