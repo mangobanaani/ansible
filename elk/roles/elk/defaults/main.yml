@@ -3,6 +3,8 @@ elasticsearch_node_name: elk
 elasticsearch_port: 9200
 kibana_server_host: 0.0.0.0
 kibana_port: 5601
+elasticsearch_password: changeme
+logstash_password: changeme
 kibana_elasticsearch_username: kibana
 kibana_elasticsearch_password: changeme
 logstash_host: elk
