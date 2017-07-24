@@ -1,0 +1,118 @@
+---
+- name: inst openjdk
+  apt: 
+    name: openjdk-8-jre
+    state: latest
+    update_cache: yes
+
+- name: aptkey for elastic repo
+  apt_key:
+    url: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
+    state: present
+
+- name: add repo for logstash
+  apt_repository:
+    repo: "deb https://artifacts.elastic.co/packages/5.x/apt stable main"
+    state: present
+
+- name: add repo for elastic
+  apt_repository:
+    repo: "deb https://artifacts.elastic.co/packages/5.x/apt stable main"
+    state: present
+
+- name: add repo for kibana
+  apt_repository:
+    repo: "deb https://artifacts.elastic.co/packages/5.x/apt stable main"
+    state: present
+
+- name: Update and upgrade apt
+  become: true
+  apt:
+    upgrade: yes
+    update_cache: yes
+
+- name: inst logstash
+  apt: 
+    name: logstash
+    state: latest
+
+- name: inst elasticsearch
+  apt: 
+    name: elasticsearch
+    state: latest
+
+- name: inst kibana
+  apt: 
+    name: kibana
+    state: latest
+
+- name: inst filebeat
+  apt: 
+    name: filebeat
+    state: latest
+
+- lineinfile:
+    path: /etc/kibana/kibana.yml
+    regexp: '^#server.host'
+    line: 'server.host: 0.0.0.0'
+
+- name: create cert for filebeat 
+  command: "openssl req -x509 -nodes -newkey rsa:2048 -days 365 -keyout logstash-forwarder.key -out {{ logstash_forwarder_certificate }} -subj /CN=elk"
+
+- template:
+    src: '{{playbook_dir}}/templates/elasticsearch.yml.j2'
+    dest: /etc/elasticsearch/elasticsearch.yml
+    owner: root
+    group: root
+    mode: '0644'
+
+- template:
+    src: '{{playbook_dir}}/templates/logstash-syslog.conf.j2'
+    dest: /etc/logstash/conf.d/01-syslog.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- template:
+    src: '{{playbook_dir}}/templates/filebeat.yml.j2'
+    dest: /etc/filebeat/filebeat.yml
+    owner: root
+    group: root
+    mode: '0644'
+
+- systemd:
+    name: logstash.service
+    state: restarted
+    enabled: yes
+
+- systemd:
+    name: elasticsearch.service
+    state: restarted
+    enabled: yes
+
+- systemd:
+    name: kibana.service
+    state: restarted
+    enabled: yes
+
+- name: install kibana X-pack (this might take awhile)
+  command : /usr/share/kibana/bin/kibana-plugin install x-pack
+
+- name: install elasticsearch X-pack (this might take awhile)
+  command: /usr/share/elasticsearch/bin/elasticsearch-plugin install x-pack
+
+- systemd:
+    name: logstash.service
+    state: restarted
+    enabled: yes
+
+- systemd:
+    name: elasticsearch.service
+    state: restarted
+    enabled: yes
+
+- systemd:
+    name: kibana.service
+    state: restarted
+    enabled: yes
+

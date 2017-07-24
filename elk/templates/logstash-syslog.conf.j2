@@ -1,0 +1,30 @@
+input {
+	beats {
+   		port => {{ logstash_port_listening }}
+   		ssl => true
+   		ssl_certificate => {{ logstash_forwarder_certificate }}
+   		ssl_key => "/etc/ssl/logstash-forwarder.key"
+   		congestion_threshold => "40"
+  	}
+}
+
+filter {
+	if [type] == "syslog" {
+  		grok {
+      		match => { "message" => "%{SYSLOGLINE}" }
+    	}
+    	date {
+			match => [ "timestamp", "MMM  d HH:mm:ss", "MMM dd HH:mm:ss" ]
+		}
+ 	} 
+}
+
+output {
+	elasticsearch {
+  		hosts => localhost
+    	index => "%{[@metadata][beat]}-%{+YYYY.MM.dd}"
+    }
+	stdout {
+    	codec => rubydebug
+	}
+}
