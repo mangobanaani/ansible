@@ -1,0 +1,6 @@
+- user:
+    name: "{{oracle_user}}"
+    shell: /bin/bash
+    groups: oinstall,dba,oper
+    append: yes
+ 

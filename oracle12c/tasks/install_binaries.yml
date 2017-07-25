@@ -1,0 +1,12 @@
+    - name: execute oracle installer
+      become: yes
+      become_user: "{{oracle_user}}"
+      command: "/var/tmp/database/runInstaller SECURITY_UPDATES_VIA_MYORACLESUPPORT=false -ignoreSysPrereqs -ignorePrereq -waitforcompletion -showProgress -silent -responseFile /var/tmp/oracle12c.rsp"
+    - name: run orainstRoot
+      become: yes
+      become_user: root
+      shell: /u01/app/oraInventory/orainstRoot.sh
+    - name: run root.sh
+      become: yes
+      become_user: root
+      shell: /u01/app/oracle/product/12c/root.sh

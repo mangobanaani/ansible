@@ -1,0 +1,12 @@
+tmpdir: /tmp
+oracle_unqname: ORCL
+oracle_user: oracle
+oracle_user_home: /home/oracle
+oracle_base: /u01/app/oracle
+oracle_home: /u01/app/oracle/product/12c
+ora_inventory_location: /u01/app/oraInventory
+oracle_install_edition: EE
+ora_globaldbname: ORCL
+oracle_sid: ORCL
+ora_containerdb: false
+ora_characterSet: UTF-8

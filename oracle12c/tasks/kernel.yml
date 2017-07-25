@@ -1,0 +1,28 @@
+- name: set shmmax
+  sysctl: name=kernel.shmmax value=4398046511104 reload=yes
+- name: set fs.file-max
+  sysctl: name=fs.file-max value=6815744 reload=yes
+- name: set kernel.shmmni
+  sysctl: name=kernel.shmmni value=4096 reload=yes
+- name: set kernel.sem
+  sysctl: name=kernel.sem value="250 32000 100 128" reload=yes
+- name: set kernel.shmall
+  sysctl: name=kernel.shmall value=1073741824 reload=yes
+- name: set kernel.panic_on_oops
+  sysctl: name=kernel.panic_on_oops value=1 reload=yes
+- name: set net.core.rmem_default
+  sysctl: name=net.core.rmem_default value=262144 reload=yes
+- name: set net.core.rmem_max
+  sysctl: name=net.core.rmem_max value=4194304 reload=yes
+- name: set net.core.wmem_default
+  sysctl: name=net.core.wmem_default value=262144 reload=yes
+- name: set net.core.wmem_max
+  sysctl: name=net.core.wmem_max value=1048576 reload=yes
+- name: set net.ipv4.conf.all.rp_filter
+  sysctl: name=net.ipv4.conf.all.rp_filter value=2 reload=yes
+- name: set net.ipv4.conf.default.rp_filter
+  sysctl: name=net.ipv4.conf.default.rp_filter value=2 reload=yes
+- name: set fs.aio-max-nr
+  sysctl: name=fs.aio-max-nr value=1048576 reload=yes
+- name: set net.ipv4.ip_local_port_range
+  sysctl: name=net.ipv4.ip_local_port_range value="9000 65500" reload=yes

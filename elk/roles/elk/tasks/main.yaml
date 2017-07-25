@@ -95,11 +95,38 @@
     state: restarted
     enabled: yes
 
-- name: install kibana X-pack (this might take awhile)
-  command : /usr/share/kibana/bin/kibana-plugin install x-pack
+#- name: install kibana X-pack (this might take awhile)
+#  command : /usr/share/kibana/bin/kibana-plugin install x-pack
 
-- name: install elasticsearch X-pack (this might take awhile)
-  command: /usr/share/elasticsearch/bin/elasticsearch-plugin install x-pack
+#- name: install elasticsearch X-pack (this might take awhile)
+#  command: /usr/share/elasticsearch/bin/elasticsearch-plugin install x-pack
+
+- name : install iptables
+  apt: name=iptables state=present
+  tags: iptables
+
+- name : install iptables-persistent
+  apt: name=iptables-persistent state=present
+  tags: iptables
+
+- name: conf in place
+  template: 
+    src: '{{playbook_dir}}/templates/rules.v4.j2'
+    dest: /etc/iptables/rules.v4 
+    owner: root
+    group: root
+    mode: 0750
+  tags: iptables
+
+- name: start and enable iptables
+  service: 
+      name: netfilter-persistent
+      enabled: yes
+  tags: iptables
+
+- name: restore iptables conf
+  command: /sbin/iptables-restore < /etc/iptables/rules.v4
+  tags: iptables
 
 - systemd:
     name: logstash.service

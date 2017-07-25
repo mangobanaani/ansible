@@ -1,0 +1,4 @@
+- name: execute netca
+  become: yes
+  become_user: "{{oracle_user}}"
+  command: "{{oracle_home}}/bin/netca -silent -responseFile /var/tmp/netca.rsp"

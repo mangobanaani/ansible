@@ -1,0 +1,18 @@
+- name: '{{oracle_user}} shell'
+  lineinfile:
+    dest: "{{oracle_user_home}}/.bashrc"
+    state: present
+    line: "{{item}}"
+  with_items:    
+    - "export TMP={{tmpdir}}"
+    - "export TMPDIR={{tmpdir}}"
+    - "export ORACLE_HOSTNAME={{ansible_hostname}}"
+    - "export ORACLE_UNQNAME={{oracle_unqname}}"
+    - "export ORACLE_BASE={{oracle_base}}"
+    - "export ORACLE_HOME={{oracle_home}}"
+    - "export ORACLE_SID={{oracle_sid}}"
+    - "export PATH=/usr/sbin:$PATH"
+    - "export PATH=$ORACLE_HOME/bin:$PATH"
+    - "export LD_LIBRARY_PATH=$ORACLE_HOME/lib:/lib:/usr/lib"
+    - "export CLASSPATH=$ORACLE_HOME/jlib:$ORACLE_HOME/rdbms/jlib"
+    - "alias sql='sqlplus / as sysdba'"

@@ -5,17 +5,17 @@
 
 Vagrant.configure("2") do |config|
   config.vm.box = "bento/ubuntu-16.04"
-  config.vm.hostname="elk"
-  config.vm.network "private_network", ip: "10.0.0.10"
-  config.vm.network "forwarded_port", guest: 5601, host: 5601
-  config.ssh.forward_x11=false
+  config.vm.hostname="mongo"
+  config.vm.network "private_network", type: "dhcp"
+  config.ssh.forward_x11=true
   config.ssh.insert_key=true
   config.ssh.keep_alive=true
-  config.vm.define "elk"
+  config.vm.define "mongo"
+  config.vm.network "forwarded_port", guest: 27018, host: 27018 
   config.vm.provider "virtualbox" do |v|
-   v.memory = 3000
-   v.name = "elk"
-   v.cpus = 2
+   v.memory = 1024
+   v.name = "mongo"
+   v.cpus = 1
    v.customize ["modifyvm", :id, "--cpuexecutioncap", "75"]
    config.vm.synced_folder ".", "/vagrant", disabled: "true"
   end

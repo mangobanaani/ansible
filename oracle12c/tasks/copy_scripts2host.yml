@@ -1,0 +1,28 @@
+- template:
+    src: '{{playbook_dir}}/templates/oracle12c.rsp.j2'
+    dest: /var/tmp/oracle12c.rsp
+    owner: "{{oracle_user}}"
+    group: dba
+    mode: 0755
+
+- template:
+    src: '{{playbook_dir}}/templates/dbca_12c.rsp.j2'
+    dest: /var/tmp/dbca.rsp
+    owner: "{{oracle_user}}"
+    group: dba
+    mode: 0755
+
+- template: 
+   src: '{{playbook_dir}}/templates/netca_12c.rsp.j2'
+   dest: /var/tmp/netca.rsp
+   owner: "{{oracle_user}}"
+   group: dba
+   mode: 0755
+
+  #- copy:
+  #  src: '{{playbook_dir}}/files/install.sh'
+  #  dest: /var/tmp/install.sh
+  #  owner: "{{oracle_user}}"
+  #  group: dba
+  #  mode: 0755
+

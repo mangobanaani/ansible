@@ -1,0 +1,4 @@
+- name: execute dbca
+  become: yes
+  become_user: "{{oracle_user}}"
+  command: "{{oracle_home}}/bin/dbca -silent -responseFile /var/tmp/dbca.rsp"

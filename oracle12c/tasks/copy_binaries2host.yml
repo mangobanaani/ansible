@@ -1,0 +1,22 @@
+- copy:
+    src: '{{playbook_dir}}/files/linuxamd64_12102_database_1of2.zip'
+    dest: /var/tmp/linuxamd64_12102_database_1of2.zip
+    owner: "{{oracle_user}}"
+    group: dba
+    mode: "u=rwx,g=rx,o=r"
+
+- copy:
+    src: '{{playbook_dir}}/files/linuxamd64_12102_database_2of2.zip'
+    dest: /var/tmp/linuxamd64_12102_database_2of2.zip
+    owner: "{{oracle_user}}"
+    group: dba
+    mode: "u=rwx,g=rx,o=r"
+        
+- unarchive:
+    src: /var/tmp/linuxamd64_12102_database_1of2.zip
+    dest: /var/tmp
+    remote_src: True
+- unarchive:
+    src: /var/tmp/linuxamd64_12102_database_2of2.zip
+    dest: /var/tmp
+    remote_src: True

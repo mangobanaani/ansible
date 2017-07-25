@@ -1,0 +1,18 @@
+[GENERAL]
+RESPONSEFILE_VERSION = "12.1.0"
+OPERATION_TYPE = "createDatabase"
+[CREATEDATABASE]
+GDBNAME = {{oracle_sid}}
+DATABASECONFTYPE  = "SI"
+SID = {{oracle_sid}}
+TEMPLATENAME = "General_Purpose.dbc"
+SYSPASSWORD = "oracle"
+SYSTEMPASSWORD = "oracle"
+CHARACTERSET = "UTF8"
+NATIONALCHARACTERSET= "AL32UTF16"
+DATABASETYPE = "MULTIPURPOSE"
+TOTALMEMORY = "512"
+storageType = FS
+datafileDestination = "{{oracle_base}}/oradata/" 
+redoLogFileSize=10
+emConfiguration=NONE

@@ -1,0 +1,12 @@
+- group:
+    gid: 54321
+    name: oinstall
+    state: present
+- group:
+    gid: 54322
+    name: dba
+    state: present
+- group:
+    gid: 54323
+    name: oper
+    state: present

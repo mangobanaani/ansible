@@ -1,0 +1,15 @@
+- include: kernel.yml
+- include: pam.yml
+- include: packages.yml
+- include: groups.yml
+- include: users.yml
+- include: selinux.yml
+- include: firewall.yml
+- include: directories.yml
+- include: shell_env.yml
+- include: copy_binaries2host.yml
+- include: copy_scripts2host.yml
+- include: install_binaries.yml
+- include: dbca.yml
+- include: netca.yml
+
