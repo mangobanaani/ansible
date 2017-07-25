@@ -34,6 +34,7 @@
 -A OUTPUT -p udp -m udp --dport 123 -m comment --comment "NTP out" -j ACCEPT
 -A OUTPUT -p tcp -m tcp --sport 1024:65535 --dport 25 -m comment --comment "SMTP out" -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
 -A OUTPUT -p tcp -m tcp --dport 1024:65535 -d 10.0.0.0/24 -m comment --comment "allow out to green subnet" -j ACCEPT
+-A OUTPUT -p tcp -m tcp --dport 1024:65535 -d 192.168.0.0/24 -m comment --comment "allow out to green subnet2" -j ACCEPT
 -A accept-n-log -j LOG --log-prefix "accept-n-log:"
 -A accept-n-log -j ACCEPT
 -A drop-n-log -j LOG --log-prefix "drop-n-log:"
