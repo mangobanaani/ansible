@@ -8,7 +8,6 @@
 </p>
 <p>
 <ul>
-<li><a href="https://github.com/mangobanaani/ansible/tree/master/basic">Basic</a> - tiny empty setup to build on</li>
 <li><a href="https://github.com/mangobanaani/ansible/tree/master/oracle12c">Oracle 12c</a> - basic Oracle 12cR2 setup stuff</li>
 <li><a href="https://github.com/mangobanaani/ansible/tree/master/mariaDB">MariaDB</a> Simple MariaDB setup for testing with it</li>
 <li><a href="https://github.com/mangobanaani/ansible/tree/master/postgreSQL">PostgreSQL</a> for PostgreSQL 9.5 on Ubuntu Xenial</li>
