@@ -1,0 +1,7 @@
+--- 
+handlers: 
+  - name: reload iptables
+    action: shell /sbin/iptables-restore -! < /etc/iptables/rules.v4
+
+  - name: reload sysctl
+    shell: /sbin/sysctl -p
