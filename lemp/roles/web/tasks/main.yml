@@ -5,6 +5,12 @@
     state: latest
     update_cache: yes
 
+- name: inst ntpd
+  apt: 
+    name: ntp
+    state: latest
+    update_cache: yes
+
 - name: write our nginx.conf
   template: 
     src: nginx.conf.j2 

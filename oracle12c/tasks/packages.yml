@@ -44,3 +44,10 @@
     - zlib-devel
     - zlib-devel.i686
     - unzip
+
+- name: inst ntpd
+  apt: 
+    name: ntp
+    state: latest
+    update_cache: yes
+

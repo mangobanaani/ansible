@@ -5,6 +5,12 @@
     state: latest
     update_cache: yes
 
+- name: inst ntpd
+  apt: 
+    name: ntp
+    state: latest
+    update_cache: yes
+
 - name: aptkey for elastic repo
   apt_key:
     url: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"

@@ -12,6 +12,11 @@
         upgrade: yes
         update-cache: yes
       when: ansible_os_family=="Debian"
+    - name: inst ntpd
+      apt: 
+        name: ntp
+        state: latest
+        update_cache: yes
     - name: import gpg key
       become: yes
       apt_key:
