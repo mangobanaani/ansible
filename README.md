@@ -17,4 +17,6 @@
 <p>
 <ul>
 <li><a href="https://github.com/mangobanaani/ansible/tree/master/bind">Bind</a> BIND configured as caching DNS </li>
-
+<li><a href="https://github.com/mangobanaani/ansible/tree/master/bind2">Bind</a> BIND conf with dummy localdomain</li>
+</ul>
+</p>
