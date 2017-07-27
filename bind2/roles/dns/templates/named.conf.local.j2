@@ -8,14 +8,20 @@
 
 zone "localdomain" {
     type master;
-    file "/etc/bind/zones/db.localdomain";
+    file "/var/cache/bind/zones/db.localdomain";
+    key-directory "/etc/bind/keys";
+    auto-dnssec maintain;
+    inline-signing yes;
     allow-transfer { 10.0.0.12; };
     allow-update { none; };
 };
 
 zone "0.0.10.in-addr.arpa" {    # reverse zone
     type master;
-    file "/etc/bind/zones/db.0.0.10";
+    file "/var/cache/bind/zones/db.0.0.10";
+    key-directory "/etc/bind/keys";
+    auto-dnssec maintain;
+    inline-signing yes;
     allow-transfer { 10.0.0.12; };
     allow-update { none; };
 };

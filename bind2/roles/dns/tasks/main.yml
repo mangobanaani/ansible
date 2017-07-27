@@ -31,21 +31,55 @@
     mode: '0644'
 
 - name: create dir for zone files
-  file: path=/etc/bind/zones state=directory
+  file: 
+    path: /var/cache/bind/zones 
+    state: directory
+    owner: root
+    group: bind
+    mode: 0770
+
+- name: create data dir
+  file: 
+    path: /var/named/data
+    state: directory
+    owner: root
+    group: bind
+    mode: 0770
+
+- name: create dir for zone files
+  file: 
+    path: /var/cache/bind/master 
+    state: directory
+    owner: root
+    group: bind
+    mode: 0770 
 
 - name: create dir for managed keys
-  file: path=/var/named/dynamic state=directory
+  file: 
+    path: /var/named/dynamic 
+    state: directory
+    owner: bind
+    group: bind
+    mode: 0640
+
+- name: create dir for dnssec keys
+  file: 
+    path: /etc/bind/keys 
+    state: directory
+    owner: root
+    group: bind
+    mode: 0770
 
 - template:
     src: '{{playbook_dir}}/roles/dns/templates/db.localdomain.j2'
-    dest: /etc/bind/zones/db.localdomain
+    dest: /var/cache/bind/zones/db.localdomain
     owner: root
     group: root
     mode: '0644'
 
 - template:
     src: '{{playbook_dir}}/roles/dns/templates/db.0.0.10.j2'
-    dest: /etc/bind/zones/db.0.0.10
+    dest: /var/cache/bind/zones/db.0.0.10
     owner: root
     group: root
     mode: '0644'
@@ -64,15 +98,18 @@
 - name : install iptables-persistent
   apt: name=iptables-persistent state=present
 
-- name: conf in place
+- name: iptables conf in place
   template: 
     src: '{{playbook_dir}}/roles/dns/templates/rules.v4.j2'
     dest: /etc/iptables/rules.v4 
     owner: root
     group: root
     mode: 0750
-  notify: 
-    - reload iptables
+
+- name: reload iptables
+  command: '/bin/sh -c /sbin/iptables-restore -! < /etc/iptables/rules.v4'
+  async: 45
+  poll: 5
 
 - name: start and enable iptables
   service: 
@@ -116,6 +153,46 @@
     net.ipv6.conf.default.accept_redirects = 0
     # Ignore Directed pings
     net.ipv4.icmp_echo_ignore_all = 1'
-  notify: reload sysctl
+
+- name: reload sysctl 
+  shell: /sbin/sysctl -p 
+
+- name: install haveged to help entropy creation
+  apt: 
+    name: haveged
+    state: latest
+
+- name: generate zone signing key
+  shell: dnssec-keygen -a RSASHA256 -b 2048 -3 localdomain
+  args: 
+    chdir: /etc/bind/keys
+
+- name: generate key signing key
+  shell: dnssec-keygen -a RSASHA256 -b 2048 -f KSK -3 example.com
+  args: 
+    chdir: /etc/bind/keys
+
+- name: ownership of keys to named
+  file: 
+    path: /etc/bind/keys/
+    owner: bind
+    group: bind
+    mode: 0640
+    recurse: yes
+
+- name: ownership of key directory
+  file: 
+    path: /etc/bind/keys
+    owner: root
+    group: bind
+    mode: 0770
+
+- systemd:
+    name: bind9.service
+    state: started
+    enabled: True
+
+
+
 
 

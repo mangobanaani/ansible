@@ -5,6 +5,8 @@
   become: yes
   gather_facts: yes
   remote_user: root
+  handlers: 
+      - include: '{{playbook_dir}}/handlers/main.yml'
   pre_tasks:
       - name: install aptitude
         raw: sudo apt-get -y install aptitude
