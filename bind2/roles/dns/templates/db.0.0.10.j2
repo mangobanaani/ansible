@@ -1,0 +1,15 @@
+; rev localdomain zone
+$TTL    604800
+0.0.10.in-addr.arpa.	IN	SOA  ns2.localdomain.  admin.localdomain. (
+2017072703     ; Serial              
+604800         ; Refresh
+86400          ; Retry
+2419200        ; Expire
+604800 )       ; Negative Cache TTL
+
+
+			IN NS	ns2.localdomain.
+11.0.0.10.in-addr.arpa.	IN PTR	ns2.localdomain.
+
+22.0.0.10.in-addr.arpa	IN PTR	host1.localdomain.
+
