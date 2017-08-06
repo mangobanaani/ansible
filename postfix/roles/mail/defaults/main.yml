@@ -1,0 +1,3 @@
+server_name: mail
+server_fqdn: mail.localdomain
+domain_name: localdomain

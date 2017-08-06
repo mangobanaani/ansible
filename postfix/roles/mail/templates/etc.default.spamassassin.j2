@@ -1,0 +1,5 @@
+ENABLED=1
+CRON=1
+SAHOME="/var/lib/spamassassin"
+OPTIONS="--username spamd --nouser-config --max-children 2 --helper-home-dir ${SAHOME} --socketpath=/var/run/spamassassin/spamd.sock --socketowner=spamd --socketgroup=spamd --socketmode=0660"
+PIDFILE="/var/run/spamassassin/spamd.pid"

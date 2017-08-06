@@ -1,0 +1,276 @@
+---
+
+- debconf:
+    name: set pfix mailname
+    question: postfix postfix/mailname 
+    value: your.hostname.com
+    vtype: select
+
+- debconf:
+    name: set pfix mailer-type
+    question: postfix/main_mailer_type
+    value: Internet Site
+    vtype: select
+
+- name: inst pkgs
+  apt: name={{item}} state=installed
+  with_items:
+       - ntp
+       - postfix
+       - postfix-policyd-spf-python
+       - dovecot-core
+       - dovecot-imapd
+       - dovecot-lmtpd
+       - opendkim
+       - opendkim-tools
+       - mutt
+       - spamass-milter
+       - clamav-milter
+       - clamav 
+       - clamav-freshclam 
+       - clamsmtp
+       - arj 
+       - bzip2 
+       - cabextract 
+       - cpio 
+       - file 
+       - gzip 
+       - jlha-utils 
+       - lzop 
+       - nomarch 
+       - p7zip 
+       - pax 
+       - rar 
+       - rpm 
+       - unrar 
+       - unzip 
+       - zip 
+       - zoo
+       - fail2ban
+
+- name: create dovecot ssl keys 
+  shell: openssl req -newkey rsa:4096 -sha512 -x509 -days 365 -nodes -subj "/C=FI/CN=mail.localdomain" -keyout /etc/dovecot/private/dovecot.key -out /etc/dovecot/dovecot.pem
+
+- name: set postfix main.cf
+  template: 
+    src: '{{playbook_dir}}/roles/mail/templates/etc.postfix.main.cf.j2'
+    dest: /etc/postfix/main.cf
+
+- group: 
+    name: vmail
+    gid: 5000
+    state: present
+
+- user:
+    name: vmail
+    comment: "Virtual Mail User"
+    uid: 5000
+    group: vmail
+    home: /var/mail/vhosts
+
+- name: set vmail dirs
+  file: dest=/var/mail/{{item}} state=directory
+  with_items: [ vhosts, vhosts/localdomain ]
+
+- file:
+    path: /var/mail/vhosts
+    owner: vmail
+    group: vmail
+    mode: 0740
+
+- file:
+    path: /var/mail/vhosts/localdomain
+    owner: vmail
+    group: vmail
+    mode: 0740
+
+- name: set postfix master.cf
+  template: 
+    src: '{{playbook_dir}}/roles/mail/templates/etc.postfix.master.cf.j2'
+    dest: /etc/postfix/master.cf
+
+- name: set postfix virt
+  template: 
+    src: '{{playbook_dir}}/roles/mail/templates/etc.postfix.virtual.j2'
+    dest: /etc/postfix/virtual
+
+- name: set postfix virt domains
+  template: 
+    src: '{{playbook_dir}}/roles/mail/templates/etc.postfix.virtual-mailbox-domains.j2'
+    dest: /etc/postfix/virtual-mailbox-domains
+
+- name: set postfix virt users
+  template: 
+    src: '{{playbook_dir}}/roles/mail/templates/etc.postfix.virtual-mailbox-users.j2'
+    dest: /etc/postfix/virtual-mailbox-users
+
+- name: postmap virtual
+  shell: postmap /etc/postfix/virtual
+
+- name: postmap virtual-mailbox-domains
+  shell: postmap /etc/postfix/virtual-mailbox-domains
+
+- name: postmap virtual users
+  shell: postmap /etc/postfix/virtual-mailbox-users
+
+- name: set dovetcot.conf
+  template: 
+    src: '{{playbook_dir}}/roles/mail/templates/etc.dovecot.dovetcot.conf.j2'
+    dest: /etc/dovecot/dovecot.conf
+
+- name: set dovetcot mail.conf
+  template: 
+    src: '{{playbook_dir}}/roles/mail/templates/etc.dovecot.conf.d.10-mail.conf.j2'
+    dest: /etc/dovecot/conf.d/10-mail.conf
+
+- name: set dovecot master.conf
+  template: 
+    src: '{{playbook_dir}}/roles/mail/templates/etc.dovecot.conf.d.10-master.conf.j2'
+    dest: /etc/dovecot/conf.d/10-master.conf
+
+- name: set dovetcot auth-passwdfile
+  template: 
+    src: '{{playbook_dir}}/roles/mail/templates/etc.dovecot.conf.d.auth-passwdfile.conf.ext.j2'
+    dest: /etc/dovecot/conf.d/auth-passwdfile.conf.ext
+
+- name: set dovetcot auth conf
+  template: 
+    src: '{{playbook_dir}}/roles/mail/templates/etc.dovecot.conf.d.10-auth.conf.j2'
+    dest: /etc/dovecot/conf.d/10-auth.conf
+
+- name: set dovetcot users
+  template: 
+    src: '{{playbook_dir}}/roles/mail/templates/etc.dovecot.dovecot-users.j2'
+    dest: /etc/dovecot/dovecot-users
+
+- name: set dovetcot ssl conf
+  template: 
+    src: '{{playbook_dir}}/roles/mail/templates/etc.dovecot.conf.d.10-ssl.conf.j2'
+    dest: /etc/dovecot/conf.d/10-ssl.conf
+
+- name: set dovetcot logrotate
+  template: 
+    src: '{{playbook_dir}}/roles/mail/templates/etc.logrotate.d.dovecot.j2'
+    dest: /etc/logrotate.d/dovecot
+
+- name: set dovetcot postmaster
+  template: 
+    src: '{{playbook_dir}}/roles/mail/templates/etc.dovecot.conf.d.15-lda.conf.j2'
+    dest: /etc/dovecot/conf.d/15-lda.conf
+
+- name: set opendkim conf
+  template: 
+    src: '{{playbook_dir}}/roles/mail/templates/etc.opendkim.conf.j2'
+    dest: /etc/opendkim.conf
+
+- name: set opendkim dirs
+  file: dest=/etc/{{item}} state=directory
+  with_items: [ opendkim, opendkim/keys, opendkim/keys/localdomain ]
+
+- name: set opendkim trustedhosts list
+  template: 
+    src: '{{playbook_dir}}/roles/mail/templates/etc.opendkim.TrustedHosts.j2'
+    dest: /etc/opendkim/TrustedHosts
+
+- name: set opendkim keytable
+  template: 
+    src: '{{playbook_dir}}/roles/mail/templates/etc.opendkim.KeyTable.j2'
+    dest: /etc/opendkim/KeyTable
+
+- name: set opendkim signing table
+  template: 
+    src: '{{playbook_dir}}/roles/mail/templates/etc.opendkim.SigningTable.j2'
+    dest: /etc/opendkim/SigningTable
+
+- name: create opendkim keys
+  command: opendkim-genkey -s mail -d localdomain
+  args: 
+    chdir: /etc/opendkim/keys/localdomain
+
+- file:
+    path: /etc/opendkim/keys/localdomain/mail.private
+    owner: opendkim
+    group: opendkim
+    mode: 0640
+
+- name: set postfix compat level no backwards compatibility_level
+  shell: postconf compatibility_level=2
+
+- group:
+    name: spamd
+    state: present
+
+- user:
+    name: spamd
+    shell: /bin/false
+    groups: spamd
+    home: /var/lib/spamassassin
+
+- file:
+    path: /var/lib/spamassassin
+    state: directory
+    owner: spamd
+    group: spamd
+    mode: 0740
+
+- file:
+    path: /var/run/spamassassin
+    state: directory
+    owner: spamd
+    group: spamd
+    mode: 0740
+
+- name: set spamassassin defaults
+  template: 
+    src: '{{playbook_dir}}/roles/mail/templates/etc.default.spamassassin.j2'
+    dest: /etc/default/spamassassin
+
+- name: set spamass-milter
+  template: 
+    src: '{{playbook_dir}}/roles/mail/templates/etc.default.spamass-milter.j2'
+    dest: /etc/default/spamass-milter
+
+- name: allow spamass-milter access spamd socket
+  shell: usermod -a -G spamd spamass-milter
+
+- name: set clamav-milter conf
+  template: 
+    src: '{{playbook_dir}}/roles/mail/templates/etc.clamav.clamav-milter.conf.j2'
+    dest: /etc/clamav/clamav-milter.conf
+
+- name: clamav default sock
+  template: 
+    src: '{{playbook_dir}}/roles/mail/templates/etc.default.clamav-milter.j2'
+    dest: /etc/default/clamav-milter
+
+- name: fail2ban conf for dovecot,postfix,sasl
+  template: 
+    src: '{{playbook_dir}}/roles/mail/templates/etc.fail2ban.jail.local.j2'
+    dest: /etc/fail2ban/jail.d/jail.local
+
+- name: start spamassassin
+  shell: spamd -d
+
+- name: clamsmtpd conf
+  template: 
+    src: '{{playbook_dir}}/roles/mail/templates/etc.clamsmtpd.conf.j2'
+    dest: /etc/clamsmtpd.conf
+
+- name: reload postfix conf
+  shell: postfix reload
+
+- service:
+    name: postfix
+    state: restarted
+
+- service:
+    name: spamassassin
+    state: restarted
+
+- service:
+    name: dovecot
+    state: restarted
+
+
+
+
