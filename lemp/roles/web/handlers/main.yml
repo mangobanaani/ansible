@@ -2,3 +2,5 @@
 - name: restart nginx
   service: name=nginx state=restarted
 
+- name: reload sysctl
+  shell: /sbin/sysctl -p
