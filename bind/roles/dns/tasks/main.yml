@@ -17,7 +17,7 @@
 
 - template:
     src: '{{playbook_dir}}/roles/dns/templates/named.conf.options.j2'
-    dest: /etc/bind/named.conf.options.j2
+    dest: /etc/bind/named.conf.options
     owner: root
     group: root
     mode: '0644'
