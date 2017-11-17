@@ -1,0 +1,29 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Simple vagrantfile to setup mariadb testing playgroud
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "bento/ubuntu-16.10"
+  config.vm.hostname="zbxsrv"
+  config.vm.network "private_network", type: "dhcp"
+  config.ssh.forward_x11=true
+  config.ssh.insert_key=true
+  config.ssh.keep_alive=true
+  config.vm.define "zbxsrv"
+  config.vm.network "forwarded_port", guest: 3306, host: 3306
+  config.vm.network "forwarded_port", guest: 80, host:80
+  config.vm.network "forwarded_port", guest: 10050, host: 10050
+  config.vm.network "forwarded_port", guest: 10051, host: 10051
+  config.vm.provider "virtualbox" do |v|
+   v.memory = 2048 
+   v.name = "zbxsrv"
+   v.cpus = 2
+   v.customize ["modifyvm", :id, "--cpuexecutioncap", "75"]
+   config.vm.synced_folder ".", "/vagrant", disabled: "true"
+  end
+  config.vm.provision :shell, :inline => "apt-get install python -y"
+  config.vm.provision :ansible do |ansible|
+   ansible.playbook = "playbook.yml"
+  end
+end

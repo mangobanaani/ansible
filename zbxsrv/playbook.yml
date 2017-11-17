@@ -1,0 +1,145 @@
+- hosts: zbxsrv 
+  become: yes
+  gather_facts: yes
+  remote_user: root
+  pre_tasks:
+      - name: install aptitude
+        raw: sudo apt-get -y install aptitude
+
+  tasks:
+    - name: get zabbix repo configuration
+      shell: cd /tmp && wget http://repo.zabbix.com/zabbix/3.4/ubuntu/pool/main/z/zabbix-release/zabbix-release_3.4-1+xenial_all.deb
+
+    - name: install zabbix repo 
+      shell: dpkg -i /tmp/zabbix-release_3.4-1+xenial_all.deb
+
+    - name: apt update
+      become: yes
+      apt:
+          upgrade: yes
+          update-cache: yes
+      when: ansible_os_family=="Debian"
+
+    - name: Update sysctl.conf
+      blockinfile:
+        dest: /etc/sysctl.conf
+        block: |
+          # IP Spoofing protection
+          net.ipv4.conf.all.rp_filter = 1
+          net.ipv4.conf.default.rp_filter = 1
+          # Ignore ICMP broadcast requests
+          net.ipv4.icmp_echo_ignore_broadcasts = 1
+          # Disable source packet routing
+          net.ipv4.conf.all.accept_source_route = 0
+          net.ipv6.conf.all.accept_source_route = 0 
+          net.ipv4.conf.default.accept_source_route = 0
+          net.ipv6.conf.default.accept_source_route = 0
+          # Ignore send redirects
+          net.ipv4.conf.all.send_redirects = 0
+          net.ipv4.conf.default.send_redirects = 0
+          # Block SYN attacks
+          net.ipv4.tcp_syncookies = 1
+          net.ipv4.tcp_max_syn_backlog = 2048
+          net.ipv4.tcp_synack_retries = 2
+          net.ipv4.tcp_syn_retries = 5
+          # Log Martians
+          net.ipv4.conf.all.log_martians = 1
+          net.ipv4.icmp_ignore_bogus_error_responses = 1
+          # Ignore ICMP redirects
+          net.ipv4.conf.all.accept_redirects = 0
+          net.ipv6.conf.all.accept_redirects = 0
+          net.ipv4.conf.default.accept_redirects = 0 
+          net.ipv6.conf.default.accept_redirects = 0
+          # Ignore Directed pings
+          net.ipv4.icmp_echo_ignore_all = 1
+        backup: yes
+
+    - name: reload sysctl 
+      shell: sysctl -p 
+
+    - name: install php7.0-xml
+      apt:
+         name: php7.0-xml
+         state: present
+
+    - name: install php7.0-bcmath
+      apt:
+         name: php7.0-bcmath
+         state: present
+
+    - name: install php7.0-mbstring
+      apt:
+         name: php7.0-mbstring
+         state: present
+    
+    - name: install zabbix server
+      apt: 
+         name: zabbix-server-mysql
+         state: present
+
+    - name: install zabbix frontend ui
+      apt:
+          name: zabbix-frontend-php
+          state: present
+
+    - lineinfile:
+        path: /etc/zabbix/zabbix_server.conf
+        regexp: '^DBHost='
+        line: 'DBHost=localhost'
+
+    - lineinfile:
+        path: /etc/zabbix/zabbix_server.conf
+        regexp: '^DBPassword='
+        line: 'DBPassword=zabbix'
+
+    - lineinfile:
+        path: /etc/zabbix/apache.conf
+        regexp: '^(.*)php_value date.timezone(.*)$'
+        line: '   php_value date.timezone Europe/Helsinki'
+        #backrefs: yes
+
+    - lineinfile:
+        path: /etc/zabbix/apache.conf
+        regexp: '^(.*)php_value date.timezone(.*)$'
+        line: '   php_value date.timezone Europe/Helsinki'
+        backrefs: yes
+
+
+    - name: always assume user exists, and drop
+      shell: mysql -uroot -e "drop user zabbix@localhost;"
+      ignore_errors: yes
+
+    - name: flush privileges
+      shell: mysql -uroot -e "flush privileges;"
+
+    - name: create mysql user
+      shell: mysql -uroot -e "create user zabbix@localhost identified by 'zabbix';"
+
+    - name: drop zbx database
+      shell: mysql -uroot -e "drop database zabbix;"
+      ignore_errors: yes
+
+    - name: create mysql database
+      shell: mysql -uroot -e "create database zabbix character set utf8 collate utf8_bin;"
+
+    - name: grant privileges to database
+      shell: mysql -uroot -e "grant all privileges on zabbix.* to 'zabbix'@'localhost';"
+
+    - name: flush privileges
+      shell: mysql -uroot -e "flush privileges;"
+
+    - name: import schema to db
+      shell: zcat /usr/share/doc/zabbix-server-mysql/create.sql.gz | mysql -uzabbix -pzabbix zabbix
+
+    - name: restart httpd
+      shell: service apache2 restart
+
+    - name: restart zabbix-server
+      shell: service zabbix-server restart
+
+
+
+
+
+
+
