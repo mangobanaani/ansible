@@ -2,9 +2,9 @@
   become: yes
   gather_facts: yes
   remote_user: root
-  pre_tasks:
-      - name: install aptitude
-        raw: sudo apt-get -y install aptitude
+#  pre_tasks:
+#      - name: install aptitude
+#        raw: sudo apt-get -y install aptitude
 
   tasks:
     - name: get zabbix repo configuration
